@@ -32,8 +32,7 @@ layout = [  [sg.Text('Nome:', size=(6, 1)), sg.InputText(size=(30,1), key='-NOME
             [sg.Text('UF:', size=(6, 1)), sg.InputText(size=(30,1), key='-UF-')],
             [ sg.Button('Cadastrar', button_color = 'black on orange', font = ['Comics', 12]), 
             sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12]),
-            sg.Button('Ver Registros', button_color = 'black on green', font = ['Comics', 12]) ] ]#,
-            #[sg.Output(size=(36,8), key='-OUTPUT-')] ]
+            sg.Button('Ver Registros', button_color = 'black on green', font = ['Comics', 12]) ] ]
 
 # Criando a janela
 window1 = sg.Window('Cadastro de Clientes', layout)
@@ -52,7 +51,6 @@ while True:
             VALUES (?,?,?,?,?,?,?)""", (values1['-NOME-'], values1['-IDADE-'], values1['-CPF-'], 
             values1['-EMAIL-'], values1['-FONE-'], values1['-CIDADE-'], values1['-UF-']))
             conn.commit() #NUNCA ESQUECER ESSE COMANDO
-            #print('Cliente cadastrado com sucesso!')
             sg.popup('Cliente cadastrado com sucesso!')
             window1['-NOME-'].update('')
             window1['-IDADE-'].update('')
@@ -72,13 +70,13 @@ while True:
                     [sg.Radio('Nome', 'loss', default=True, size=(5, 1)), 
                     sg.Radio('CPF', 'loss', size=(5, 1))],
                     [sg.Text('Busca:', size=(6, 1)), sg.InputText(size=(40,1), key='-BUSCA-', enable_events=True)],
-                    [sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(70,15))],
-                    #[sg.Output(size=(70,15), key='-OUTPUT-')],
+                    [sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(80,15), font='Any 13')],
                     [sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12])] ]
+                    
         window2 = sg.Window('Ver/Filtrar Registros', layout2, finalize=True)
         
         #Preenchendo na primeira execução
-        window2['-ML1-'+sg.WRITE_ONLY_KEY].print('\nOs dados salvos na base de dados são:\n',                 text_color='yellow', background_color='black')
+        window2['-ML1-'+sg.WRITE_ONLY_KEY].print('\nOS DADOS SALVOS NO BANCO DE DADOS SÃO:\n', text_color='yellow', background_color='black')
         cursor.execute("""SELECT * FROM clientes;""")
         for i, linha in enumerate(cursor.fetchall()):
             if i % 2 == 0:
@@ -95,7 +93,13 @@ while True:
                 window1.UnHide()
                 break
             if values2['-BUSCA-']:    # if something is highlighted in the list
-                window2['-ML1-'+sg.WRITE_ONLY_KEY].print('IMPLEMENTAÇÃO DO FILTRO')
+                #window2.FindElement('-ML1-').Update('')
+                cursor.execute(f"""SELECT * FROM clientes WHERE nome LIKE '{values2['-BUSCA-']}%';""")
+                for i, linha in enumerate(cursor.fetchall()):
+                    if i % 2 == 0:
+                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light yellow')
+                    else:
+                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
 conn.close() # desconectando do banco de dados...
 window1.close()
 ##################################################
