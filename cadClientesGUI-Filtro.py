@@ -13,10 +13,10 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (
 	nome TEXT NOT NULL,
 	idade INTEGER,
 	cpf	VARCHAR(11) NOT NULL,
-	email TEXT NOT NULL,
+	email TEXT,
 	fone TEXT,
 	cidade TEXT,
-	uf VARCHAR(2) NOT NULL);""")
+	uf VARCHAR(2));""")
 
 ##################################################
 
@@ -44,6 +44,7 @@ while True:
     # if user closes window or clicks exit
     if event1 == sg.WIN_CLOSED or event1 == 'Sair':
         break
+    
     if event1 == 'Cadastrar':
         try:
             # inserindo dados na tabela
@@ -59,17 +60,18 @@ while True:
             window1['-FONE-'].update('')
             window1['-CIDADE-'].update('')
             window1['-UF-'].update('')
-        except E:
-            print(E)
+        except E as Argument:
+            print(f'Erro ao gravar os dados:\n{E}')
+
     if event1 == 'Ver Registros' and not window2_active:
         window2_active = True
         window1.Hide()
         
         # SEMPRE CRIAR LAYOUT NOVO, NUNCA REUTILIZAR
         layout2 = [ [sg.Text('TIPO DE FILTRO', font=('Helvetica', 14), justification='left')],
-                    [sg.Radio('Nome', 'loss', default=True, size=(5, 1)), 
-                    sg.Radio('CPF', 'loss', size=(5, 1))],
-                    [sg.Text('Busca:', size=(6, 1)), sg.InputText(size=(40,1), key='-BUSCA-', enable_events=True)],
+                    [sg.Radio('Nome', 'loss', default=True, size=(5, 1), font = ['Comics', 14]), 
+                    sg.Radio('CPF', 'loss', size=(5, 1), font = ['Comics', 14])],
+                    [sg.Text('Busca:', size=(5, 1), font = ['Comics', 13]), sg.InputText(size=(40,1), key='-BUSCA-', font = ['Comics', 13]), sg.Button('Filtrar', button_color = 'black on light blue', font = ['Comics', 12])],
                     [sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(80,15), font='Any 13')],
                     [sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12])] ]
                     
@@ -84,7 +86,8 @@ while True:
             else:
                 window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
         
-        #Laço da segunda janela    
+        #Laço da segunda janela
+        tipoBusca = True
         while True:
             event2, values2 = window2.read()
             if event2 == sg.WIN_CLOSED or event2 == 'Sair':
@@ -92,9 +95,24 @@ while True:
                 window2_active = False
                 window1.UnHide()
                 break
-            if values2['-BUSCA-']:    # if something is highlighted in the list
-                #window2.FindElement('-ML1-').Update('')
+
+            if event2 == 'Nome':
+                tipoBusca = True
+            if event2 == 'CPF':
+                tipoBusca = False
+
+            if event2 == 'Filtrar' and tipoBusca:    # if something is highlighted in the list
+                #window2.FindElement('-ML1-').Update('') #Não consigo limpar o Multiline
                 cursor.execute(f"""SELECT * FROM clientes WHERE nome LIKE '{values2['-BUSCA-']}%';""")
+                for i, linha in enumerate(cursor.fetchall()):
+                    if i % 2 == 0:
+                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light yellow')
+                    else:
+                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
+            
+            if event2 == 'Filtrar' and not tipoBusca:    # if something is highlighted in the list
+                #window2.FindElement('-ML1-').Update('') #Não consigo limpar o Multiline
+                cursor.execute(f"""SELECT * FROM clientes WHERE cpf LIKE '{values2['-BUSCA-']}%';""")
                 for i, linha in enumerate(cursor.fetchall()):
                     if i % 2 == 0:
                         window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light yellow')
@@ -103,3 +121,4 @@ while True:
 conn.close() # desconectando do banco de dados...
 window1.close()
 ##################################################
+
