@@ -23,19 +23,19 @@ cursor.execute("""CREATE TABLE IF NOT EXISTS clientes (
 # Creating the GUI
 sg.theme('Tan Blue')   #Choosing a theme
 # Desingn of the window1.
-layout = [  [sg.Text('Nome:', size=(6, 1)), sg.InputText(size=(30,1), key='-NOME-')],
-            [sg.Text('Idade:', size=(6, 1)), sg.InputText(size=(30,1), key='-IDADE-')],
-            [sg.Text('CPF:', size=(6, 1)), sg.InputText(size=(30,1), key='-CPF-')],
-            [sg.Text('e-mail:', size=(6, 1)), sg.InputText(size=(30,1), key='-EMAIL-')],
-            [sg.Text('Fone:', size=(6, 1)), sg.InputText(size=(30,1), key='-FONE-')],
-            [sg.Text('Cidade:', size=(6, 1)), sg.InputText(size=(30,1), key='-CIDADE-')],
-            [sg.Text('UF:', size=(6, 1)), sg.InputText(size=(30,1), key='-UF-')],
+layout = [  [sg.Text('Nome:', size=(6, 1)), sg.InputText(size=(32,1), key='-NOME-')],
+            [sg.Text('Idade:', size=(6, 1)), sg.InputText(size=(32,1), key='-IDADE-')],
+            [sg.Text('CPF:', size=(6, 1)), sg.InputText(size=(32,1), key='-CPF-', enable_events = True)],
+            [sg.Text('e-mail:', size=(6, 1)), sg.InputText(size=(32,1), key='-EMAIL-')],
+            [sg.Text('Fone:', size=(6, 1)), sg.InputText(size=(32,1), key='-FONE-', enable_events = True)],
+            [sg.Text('Cidade:', size=(6, 1)), sg.InputText(size=(32,1), key='-CIDADE-')],
+            [sg.Text('UF:', size=(6, 1)), sg.InputText(size=(32,1), key='-UF-')],
             [ sg.Button('Cadastrar', button_color = 'black on orange', font = ['Comics', 12]), 
             sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12]),
             sg.Button('Ver Registros', button_color = 'black on green', font = ['Comics', 12]) ] ]
 
 # Creating the window1
-window1 = sg.Window('Cadastro de Clientes', layout)
+window1 = sg.Window('Cadastro de Clientes', layout, finalize = True)
 window2_active = False
 
 # Event Loop to process "events" and get the "values" of the inputs
@@ -44,6 +44,14 @@ while True:
     # if user closes window or clicks exit
     if event1 == sg.WIN_CLOSED or event1 == 'Sair':
         break
+
+    if event1 == '-CPF-' and values1['-CPF-'] and values1['-CPF-'][-1] not in ('0123456789'):
+        window1['-CPF-'].update(values1['-CPF-'][:-1])
+        sg.popup('Apenas números são permitidos no campo CPF!')
+
+    if event1 == '-FONE-' and values1['-FONE-'] and values1['-FONE-'][-1] not in ('0123456789()-'):
+        window1['-FONE-'].update(values1['-FONE-'][:-1])
+        sg.popup('Apenas números são permitidos\n ou o modelo (xx)xxxxx-xxxx')
     
     if event1 == 'Cadastrar':
         nome, cpf = values1['-NOME-'], values1['-CPF-']
@@ -78,7 +86,7 @@ while True:
                     [sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(80,15), font='Any 13')],
                     [sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12])] ]
                     
-        window2 = sg.Window('Ver/Filtrar Registros', layout2, finalize=True)
+        window2 = sg.Window('Ver/Filtrar Registros', layout2, finalize = True)
         
         #Filling in before showing
         window2['-ML1-'+sg.WRITE_ONLY_KEY].print('\nOS DADOS SALVOS NO BANCO DE DADOS SÃO:\n', text_color='yellow', background_color='black')
@@ -105,7 +113,7 @@ while True:
                 tipoBusca = False
 
             if event2 == 'Filtrar' and tipoBusca:    
-                #window2.FindElement('-ML1-').Update('') #I can't clear the multiline =(
+                #window2.FindElement('-ML1-').Update(value = '') #I can't clear the multiline =(
                 cursor.execute(f"""SELECT * FROM clientes WHERE nome LIKE '{values2['-BUSCA-']}%';""")
                 for i, linha in enumerate(cursor.fetchall()):
                     if i % 2 == 0:
@@ -114,7 +122,7 @@ while True:
                         window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
             
             if event2 == 'Filtrar' and not tipoBusca:    
-                #window2.FindElement('-ML1-').Update('') #I can't clear the multiline =(
+                #window2.FindElement('-ML1-').Update(value = '') #I can't clear the multiline =(
                 cursor.execute(f"""SELECT * FROM clientes WHERE cpf LIKE '{values2['-BUSCA-']}%';""")
                 for i, linha in enumerate(cursor.fetchall()):
                     if i % 2 == 0:
@@ -124,3 +132,4 @@ while True:
 conn.close() # desconecting DB
 window1.close()
 ##################################################
+
