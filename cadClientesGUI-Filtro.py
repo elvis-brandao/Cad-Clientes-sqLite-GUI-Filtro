@@ -83,19 +83,27 @@ while True:
                     [sg.Radio('Nome', 'loss', default=True, size=(5, 1), font = ['Comics', 14]), 
                     sg.Radio('CPF', 'loss', size=(5, 1), font = ['Comics', 14])],
                     [sg.Text('Busca:', size=(5, 1), font = ['Comics', 13]), sg.InputText(size=(40,1), key='-BUSCA-', font = ['Comics', 13]), sg.Button('Filtrar', button_color = 'black on light blue', font = ['Comics', 12])],
-                    [sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(80,15), font='Any 13')],
+                    #[sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(80,5), font='Any 13')], #Old inplamantation
+                    [sg.Output(s = (80, 15), echo_stdout_stderr = True, font='Any 13', key = '-OUT-')] ,
                     [sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12])] ]
                     
         window2 = sg.Window('Ver/Filtrar Registros', layout2, finalize = True)
         
-        #Filling in before showing
-        window2['-ML1-'+sg.WRITE_ONLY_KEY].print('\nOS DADOS SALVOS NO BANCO DE DADOS SÃO:\n', text_color='yellow', background_color='black')
-        cursor.execute("""SELECT * FROM clientes;""")
+        #That was a old inplamantation
+        """window2['-ML1-'+sg.WRITE_ONLY_KEY].print('\nOS DADOS SALVOS NO BANCO DE DADOS SÃO:\n', text_color='yellow', background_color='black')
+        
+        cursor.execute(SELECT * FROM clientes;)
         for i, linha in enumerate(cursor.fetchall()):
             if i % 2 == 0:
                 window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light yellow')
             else:
-                window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
+                window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')"""
+        
+        #Filling in before showing
+        print('OS DADOS SALVOS NO BANCO DE DADOS SÃO:\n')
+        cursor.execute("""SELECT * FROM clientes;""")
+        for linha in cursor.fetchall():
+            print(linha)
         
         #Loop for window2
         tipoBusca = True
@@ -112,24 +120,35 @@ while True:
             if event2 == 'CPF':
                 tipoBusca = False
 
-            if event2 == 'Filtrar' and tipoBusca:    
-                #window2.FindElement('-ML1-').Update(value = '') #I can't clear the multiline =(
+            if event2 == 'Filtrar' and tipoBusca:
                 cursor.execute(f"""SELECT * FROM clientes WHERE nome LIKE '{values2['-BUSCA-']}%';""")
-                for i, linha in enumerate(cursor.fetchall()):
+                window2['-OUT-']('')
+                print('RESULTADO DO FILTRO:\n')
+                for linha in cursor.fetchall():
+                    print(linha)
+
+                #window2.FindElement('-ML1-').Update('') #I can't clear the multiline =(
+                #Still old inplamantation with Multiline
+                """for i, linha in enumerate(cursor.fetchall()):
                     if i % 2 == 0:
                         window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light yellow')
                     else:
-                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
+                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')"""
             
-            if event2 == 'Filtrar' and not tipoBusca:    
-                #window2.FindElement('-ML1-').Update(value = '') #I can't clear the multiline =(
+            if event2 == 'Filtrar' and not tipoBusca:
                 cursor.execute(f"""SELECT * FROM clientes WHERE cpf LIKE '{values2['-BUSCA-']}%';""")
-                for i, linha in enumerate(cursor.fetchall()):
+                window2['-OUT-']('')
+                print('RESULTADO DO FILTRO:\n')
+                for linha in cursor.fetchall():
+                    print(linha)
+                
+                #window2.FindElement('-ML1-').Update('') #I can't clear the multiline =(
+                #Still old inplamantation with Multiline
+                """for i, linha in enumerate(cursor.fetchall()):
                     if i % 2 == 0:
                         window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light yellow')
                     else:
-                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')
+                        window2['-ML1-'+sg.WRITE_ONLY_KEY].print(linha, text_color='black', background_color='light blue')"""
 conn.close() # desconecting DB
 window1.close()
 ##################################################
-
