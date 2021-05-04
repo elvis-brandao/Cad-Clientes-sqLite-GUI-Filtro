@@ -47,7 +47,7 @@ while True:
 
     if event1 == '-CPF-' and values1['-CPF-'] and values1['-CPF-'][-1] not in ('0123456789'):
         window1['-CPF-'].update(values1['-CPF-'][:-1])
-        sg.popup('Apenas números são permitidos no campo CPF!')
+        sg.popup('Apenas números são permitidos no campo CPF!\n Não utilizar nem pontos nem traços')
 
     if event1 == '-FONE-' and values1['-FONE-'] and values1['-FONE-'][-1] not in ('0123456789()-'):
         window1['-FONE-'].update(values1['-FONE-'][:-1])
@@ -61,7 +61,7 @@ while True:
             try:
                 #input data in table
                 cursor.execute("""INSERT INTO clientes (nome, idade, cpf, email, fone, cidade, uf)
-                VALUES (?,?,?,?,?,?,?)""", (values1['-NOME-'], values1['-IDADE-'], values1['-CPF-'], 
+                VALUES (?,?,?,?,?,?,?)""", (values1['-NOME-'], values1['-IDADE-'], values1['-CPF-'],
                 values1['-EMAIL-'], values1['-FONE-'], values1['-CIDADE-'], values1['-UF-']))
                 conn.commit() #NEVER FORGET THIS COMAND
                 sg.popup('Cliente cadastrado com sucesso!')
@@ -80,13 +80,12 @@ while True:
         window1.Hide()
         
         layout2 = [ [sg.Text('TIPO DE FILTRO', font=('Helvetica', 14), justification='left')],
-                    [sg.Radio('Nome', 'loss', default=True, size=(5, 1), font = ['Comics', 14]), 
-                    sg.Radio('CPF', 'loss', size=(5, 1), font = ['Comics', 14])],
-                    [sg.Text('Busca:', size=(5, 1), font = ['Comics', 13]), sg.InputText(size=(40,1), key='-BUSCA-', font = ['Comics', 13]), sg.Button('Filtrar', button_color = 'black on light blue', font = ['Comics', 12])],
+                    [sg.Radio('NOME', "RADIO1", default=True, size=(5,1), font = ['Comisc', 14], k = '-R1-', enable_events = True), sg.Radio('CPF', "RADIO1", size=(5,1), font = ['Comisc', 14], k = '-R2-', enable_events = True)],
+                    [sg.Text('Busca:', size=(5, 1), font = ['Comics', 13]), sg.InputText(size=(40,1), key='-BUSCA-', font = ['Comics', 13], enable_events = True), sg.Button('Filtrar', button_color = 'black on light blue', font = ['Comics', 12])],
                     #[sg.MLine(key='-ML1-'+sg.WRITE_ONLY_KEY, size=(80,5), font='Any 13')], #Old inplamantation
                     [sg.Output(s = (80, 15), echo_stdout_stderr = True, font='Any 13', key = '-OUT-')] ,
-                    [sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12])] ]
-                    
+                    [sg.Column([[sg.Button('Sair', button_color = 'black on red', font = ['Comics', 12])]], justification='center')] ]
+
         window2 = sg.Window('Ver/Filtrar Registros', layout2, finalize = True)
         
         #That was a old inplamantation
@@ -115,9 +114,9 @@ while True:
                 window1.UnHide()
                 break
 
-            if event2 == 'Nome':
+            if event2 == '-R1-':
                 tipoBusca = True
-            if event2 == 'CPF':
+            if event2 == '-R2-':
                 tipoBusca = False
 
             if event2 == 'Filtrar' and tipoBusca:
@@ -152,3 +151,4 @@ while True:
 conn.close() # desconecting DB
 window1.close()
 ##################################################
+
